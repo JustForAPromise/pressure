@@ -1,0 +1,33 @@
+version: '2.1'
+
+x-logging:
+  &default-logging
+  options:
+    max-size: '100m'
+    max-file: '5'
+
+x-jar-entrypoint:
+  &default-jvm-run
+  - java
+  - -Xmx512m
+  - -Xms120m
+  - -jar
+  - /app/app.jar
+
+x-jar-service:
+  &default-jar-service
+  build: ./docker/java
+  entrypoint: *default-jvm-run
+  cap_add:
+    - SYS_PTRACE
+  restart: always
+  logging: *default-logging
+
+services:
+
+  yjk-breath:
+    <<: *default-jar-service
+    ports:
+      - "8087:8080"
+    volumes:
+      - "./target/yjk-breath-0.0.1-SNAPSHOT.jar:/app/app.jar"
